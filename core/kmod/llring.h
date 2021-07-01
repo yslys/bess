@@ -107,7 +107,7 @@
 #elif __cplusplus <= 201402L && __GNUC__ < 7 // C++14 or older, pre-GCC 7
 #define FALLTHROUGH
 #else
-#define FALLTHROUGH [[fallthrough]]
+#define FALLTHROUGH [[fallthrough]] /* Confused here -------------------------------------------------------- */
 #endif
 
 /**
@@ -166,6 +166,9 @@ typedef void *llring_addr_t;
 #endif
 
 /* dummy assembly operation to prevent compiler re-ordering of instructions */
+// https://stackoverflow.com/questions/14449141/the-difference-between-asm-asm-volatile-and-clobbering-memory#14449203
+// https://docs.microsoft.com/en-us/cpp/preprocessor/hash-define-directive-c-cpp?view=msvc-160
+// https://blog.csdn.net/whut_gyx/article/details/39078339
 #define COMPILER_BARRIER()                                                     \
 	do {                                                                   \
 		asm volatile("" ::: "memory");                                 \
@@ -174,6 +177,10 @@ typedef void *llring_addr_t;
 static inline int llring_atomic32_cmpset(volatile uint32_t *dst, uint32_t exp,
 					 uint32_t src)
 {
+	// https://www.ibm.com/docs/en/xcfbg/121.141?topic=functions-sync-bool-compare-swap
+	// https://zhuanlan.zhihu.com/p/32303037
+	// https://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html
+	// built-in functions for atomic memory access
 	return __sync_bool_compare_and_swap(dst, exp, src);
 }
 
