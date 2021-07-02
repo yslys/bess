@@ -193,14 +193,30 @@ enum llring_queue_behavior {
 #if LLRING_ENABLE_DEBUG
 #ifdef __KERNEL__
 
+// http://embeddedguruji.blogspot.com/2019/05/linux-driver-example-to-print-current.html
+// When you have multiple processors present in the system, and want to find out 
+// on which the processor your driver code is running, use smp_processor_id().
+// returns an integer
 static inline int llring_cpu_id() { return smp_processor_id(); }
 
 #else /* __KERNEL__ */
 
 #ifdef _RTE_LCORE_H_
+// https://doc.dpdk.org/api/rte__lcore_8h.html#adfb2b334e7e73f534f25e8888a8a775f
+// Note: in most cases the lcore id returned here will also correspond to the 
+// processor id of the CPU on which the thread is pinned, this will not be the 
+// case if the user has explicitly changed the thread to core affinities using 
+// –lcores EAL argument e.g. –lcores '(0-3)@10' to run threads with lcore IDs 0, 
+// 1, 2 and 3 on physical core 10..
+// Return the Application thread ID of the execution unit.
+// Returns Logical core ID (in EAL thread or registered non-EAL thread) or 
+// LCORE_ID_ANY (in unregistered non-EAL thread)
 static inline int llring_cpu_id() { return rte_lcore_id(); }
 #else /* _RTE_LCORE_H_ */
 #include <sched.h>
+
+// sched_getcpu() returns the number of the CPU on which the calling
+// thread is currently executing.
 static inline int llring_cpu_id() { return sched_getcpu(); }
 #endif /* RTE_LCORE_H_ */
 
