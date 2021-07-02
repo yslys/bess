@@ -98,16 +98,20 @@
 
 #if !defined(__cplusplus) // C
 #ifdef fallthrough
+// the following aims to hint to the compiler that a statement that falls 
+// through to another case label, or user-defined label in a switch statement 
+// is intentional and thus the -Wimplicit-fallthrough warning must not trigger. 
+// Note: can only be used in switch-case statement
 #define FALLTHROUGH __attribute__((__fallthrough__))
 #else
-#define FALLTHROUGH __attribute__((fallthrough))
+#define FALLTHROUGH __attribute__((fallthrough)) // https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html
 #endif
 #elif __cplusplus <= 201402L && defined(__clang__) // C++14 or older, Clang
 #define FALLTHROUGH [[clang::fallthrough]]
 #elif __cplusplus <= 201402L && __GNUC__ < 7 // C++14 or older, pre-GCC 7
 #define FALLTHROUGH
 #else
-#define FALLTHROUGH [[fallthrough]] /* Confused here -------------------------------------------------------- */
+#define FALLTHROUGH [[fallthrough]] // https://en.cppreference.com/w/c/language/attributes/fallthrough
 #endif
 
 /**
