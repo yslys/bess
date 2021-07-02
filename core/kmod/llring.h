@@ -346,16 +346,20 @@ static inline int llring_init(struct llring *r, unsigned int slots, int sp,
 	int i;
 
 	/* slots must be a power of 2 */
-	// x & (x-1) turns x's right-most 1 to 0
-	// slots is a 32-bit integer
-	// if 
+	// this function checks if slots is power of 2.
+	// x & (x-1) turns x's right-most 1 to 0.
+	// Since slots must be a power of 2, it must be 1 with at least 1 zeros.
+	// i.e. 10, 100, 1000, 10000, ...
+	// only when slots not equal to power of 2 will it return -LLRING_ERR_NOPOW2
 	if (slots & (slots - 1))
 		return -LLRING_ERR_NOPOW2;
 
 	/* poor man's memset */
+	// while initialization, set this part of memory to be all zeros
 	for (i = 0; i < llring_bytes_with_slots(slots); i++)
 		p[i] = 0;
 
+	// then, set the initialization values
 	r->common.slots = slots;
 	r->common.mask = slots - 1;
 	r->common.watermark = slots;
