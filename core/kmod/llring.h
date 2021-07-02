@@ -134,6 +134,13 @@
 
 #define LLRING_CACHELINE_SIZE 64
 
+// The aligned attribute specifies a minimum alignment for the variable or 
+// structure field, measured in bytes. When specified, alignment must be an 
+// integer constant power of 2. Specifying no alignment argument implies the 
+// maximum alignment for the target, which is often, but by no means (绝不) 
+// always, 8 or 16 bytes.
+
+// Hence, __llring_cache_aligned is an attribute here
 #define __llring_cache_aligned                                                 \
 	__attribute__((__aligned__(LLRING_CACHELINE_SIZE)))
 
@@ -142,6 +149,10 @@
 #define llring_likely(x) likely(x)
 #define llring_unlikely(x) unlikely(x)
 
+// https://stackoverflow.com/questions/47975191/gcc-and-cpu-relax-smb-mb-etc#48114247
+// For x86, cpu_relax maps to the PAUSE machine instruction. 
+// It allows an x86 CPU to more efficiently run a spinlock so that the lock 
+// variable update is more readily visible by the spinning CPU.
 static inline void llring_pause(void) { cpu_relax(); }
 
 #else
@@ -155,6 +166,9 @@ typedef uint64_t phys_addr_t;
 
 #include <emmintrin.h>
 
+// smp_mb is an x86 memory fence instruction that flushes the memory cache. 
+// One CPU can change my_variable in its cache but it will not be visible to 
+// other CPUs. smp_mb provides on-demand cache coherency.
 static inline void llring_pause(void) { _mm_pause(); }
 
 #endif
@@ -170,9 +184,12 @@ typedef void *llring_addr_t;
 #endif
 
 /* dummy assembly operation to prevent compiler re-ordering of instructions */
+// !!! https://stackoverflow.com/questions/14950614/working-of-asm-volatile-memory
 // https://stackoverflow.com/questions/14449141/the-difference-between-asm-asm-volatile-and-clobbering-memory#14449203
 // https://docs.microsoft.com/en-us/cpp/preprocessor/hash-define-directive-c-cpp?view=msvc-160
 // https://blog.csdn.net/whut_gyx/article/details/39078339
+// creates a compiler level memory barrier forcing optimizer NOT to re-order memory accesses across the barrier.
+// Question: why use do-while(0) instead of removing do-while and using "asm volatile(...) directly?
 #define COMPILER_BARRIER()                                                     \
 	do {                                                                   \
 		asm volatile("" ::: "memory");                                 \
@@ -258,8 +275,7 @@ struct llring {
 		uint32_t mask;       /**< Mask (slots-1) of ring. */
 		uint32_t sp_enqueue; /**< True, if single producer. */
 		uint32_t sc_dequeue; /**< True, if single consumer. */
-		uint32_t
-		    watermark; /**< Maximum items before LLRING_ERR_QUOT. */
+		uint32_t watermark; /**< Maximum items before LLRING_ERR_QUOT. */
 	} common __llring_cache_aligned;
 
 	/** Ring producer status. */
@@ -289,7 +305,7 @@ struct llring {
 } __llring_cache_aligned;
 
 #define RING_QUOT_EXCEED (1 << 31)	  /**< Quota exceed for burst ops */
-#define RING_SZ_MASK (unsigned)(0x0fffffff) /**< Ring slots mask */
+#define RING_SZ_MASK (unsigned)(0x0fffffff) /**< Ring slots mask (8bit * 4bits each) */
 
 /**
  * @internal When debug is enabled, store ring statistics.
