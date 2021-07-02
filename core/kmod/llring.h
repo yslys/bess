@@ -407,6 +407,7 @@ static inline int llring_set_water_mark(struct llring *r, unsigned count)
 /* the actual enqueue of pointers on the ring.
  * Placed here since identical code needed in both
  * single and multi producer enqueue functions */
+// enq to the ring buffer from obj_table
 #define LLRING_ENQUEUE_PTRS()                                                  \
 	do {                                                                   \
 		const uint32_t slots = r->common.slots;                        \
@@ -440,6 +441,7 @@ static inline int llring_set_water_mark(struct llring *r, unsigned count)
 /* the actual copy of pointers on the ring to obj_table.
  * Placed here since identical code needed in both
  * single and multi consumer dequeue functions */
+// deq from ring buffer to obj_table
 #define LLRING_DEQUEUE_PTRS()                                                  \
 	do {                                                                   \
 		uint32_t idx = cons_head & mask;                               \
