@@ -161,6 +161,7 @@ static inline void llring_pause(void) { cpu_relax(); }
 
 typedef uint64_t phys_addr_t;
 
+// https://stackoverflow.com/questions/109710/how-do-the-likely-unlikely-macros-in-the-linux-kernel-work-and-what-is-their-ben#109732
 #define llring_likely(x) __builtin_expect(!!(x), 1)
 #define llring_unlikely(x) __builtin_expect(!!(x), 0)
 
