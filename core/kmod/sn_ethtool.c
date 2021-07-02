@@ -28,6 +28,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+// ethtool is the primary means in Linux kernel-based operating systems for 
+// displaying and modifying the parameters of network interface controllers 
+// (NICs) and their associated device driver software from application 
+// programs running in userspace.
+
 #include "sn_common.h"
 #include "sn_kernel.h"
 #include "../snbuf_layout.h"
