@@ -346,6 +346,9 @@ static inline int llring_init(struct llring *r, unsigned int slots, int sp,
 	int i;
 
 	/* slots must be a power of 2 */
+	// x & (x-1) turns x's right-most 1 to 0
+	// slots is a 32-bit integer
+	// if 
 	if (slots & (slots - 1))
 		return -LLRING_ERR_NOPOW2;
 
