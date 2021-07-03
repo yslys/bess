@@ -49,6 +49,7 @@
 
 #define MAX_BATCH 32
 
+// declare a per-CPU variable named "in_batched_polling", with type int
 DECLARE_PER_CPU(int, in_batched_polling);
 
 struct sn_device;
